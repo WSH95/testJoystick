@@ -1,32 +1,10 @@
-# Prerequisites
-*.d
+build/
+cmake-build-debug/
+.idea/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+lcmFiles/cpp/
+lcmFiles/java/
+lcmFiles/lcmtypes/
+lcmFiles/python/
+lcmFiles/file_list.txt
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app

@@ -1,0 +1,31 @@
+struct joystick_button_lcm {
+    byte RB;     // unitree_joystick: R1
+    byte LB;     // unitree_joystick: L1
+    byte start;
+    byte select;
+
+    byte RT;     // unitree_joystick: R2
+    byte LT;     // unitree_joystick: L2
+    byte M2;     // unitree_joystick: F1
+    byte C;      // unitree_joystick: F2
+
+    byte A;
+    byte B;
+    byte X;
+    byte Y;
+
+    byte up;     // axis YY-
+    byte right;  // axis XX+
+    byte down;   // axis YY+
+    byte left;   // axis XX-
+
+    int16_t value;
+
+    float LX;
+    float LY;
+    float RX;
+    float RY;
+    float LT_axis;
+    float RT_axis;
+}
+
