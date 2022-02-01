@@ -23,7 +23,7 @@ int main()
 
             tt.start();
             js.lcmPublish();
-            std::cout << "time spent2: " << tt.getMs() << "ms" << std::endl;
+//            std::cout << "time spent2: " << tt.getMs() << "ms" << std::endl;
             usleep(1000);
         }
         sleep(1);

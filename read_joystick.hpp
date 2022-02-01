@@ -5,6 +5,8 @@
 #ifndef TESTJOYSTICK_READ_JOYSTICK_HPP
 #define TESTJOYSTICK_READ_JOYSTICK_HPP
 
+#define LCM_PUBLISH
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -12,10 +14,14 @@
 #include <string.h>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <functional>
 #include "my_joystick.hpp"
+
+#ifdef LCM_PUBLISH
 #include <lcm-cpp.hpp>
 #include "joystick_button_lcm.hpp"
+#endif
 
 /*!
  * from <linux/joystick.h>
@@ -44,7 +50,11 @@ class ReadJoystick
     void _setKeyMap_Wifi();
 
 public:
+#ifdef LCM_PUBLISH
     ReadJoystick() : _lcm("udpm://239.255.76.67:7667?ttl=255") {}
+#else
+    ReadJoystick() = default;
+#endif
 
     ~ReadJoystick() { closeJs(); }
 
@@ -64,14 +74,16 @@ private:
     int _fd;
     struct js_event event{};
     jsDataStruct jsData{};
-    std::map<uint8_t, uint16_t> buttonMap;
-//    std::map<uint8_t, std::reference_wrapper<float>> axisMap;
+//    std::map<uint8_t, uint16_t> buttonMap;
+    std::unordered_map<uint8_t, uint16_t> buttonMap;
+
+#ifdef LCM_PUBLISH
     lcm::LCM _lcm;
     joystick_button_lcm lcm_js_data{};
+#endif
+
     uint8_t _num_buttons = 0;
     uint8_t _num_axes = 0;
-//    float tmpXX = 0.0;
-//    float tmpYY = 0.0;
 };
 
 void ReadJoystick::_setKeyMap_Bluetooth()
@@ -89,15 +101,6 @@ void ReadJoystick::_setKeyMap_Bluetooth()
     buttonMap[9] = 0x0004;
     buttonMap[15] = 0x0040;
     buttonMap[17] = 0x0080;
-
-//    axisMap.emplace(0, std::reference_wrapper<float>(jsData.LX));
-//    axisMap.emplace(1, std::reference_wrapper<float>(jsData.LY));
-//    axisMap.emplace(2, std::reference_wrapper<float>(jsData.RX));
-//    axisMap.emplace(3, std::reference_wrapper<float>(jsData.RY));
-//    axisMap.emplace(4, std::reference_wrapper<float>(jsData.RT));
-//    axisMap.emplace(5, std::reference_wrapper<float>(jsData.LT));
-//    axisMap.emplace(6, std::reference_wrapper<float>(tmpXX));
-//    axisMap.emplace(7, std::reference_wrapper<float>(tmpYY));
 }
 
 void ReadJoystick::_setKeyMap_Wifi()
@@ -115,15 +118,6 @@ void ReadJoystick::_setKeyMap_Wifi()
     buttonMap[11] = 0x0004;
     buttonMap[15] = 0x0040;
     buttonMap[2] = 0x0080;
-
-//    axisMap.emplace(0, std::reference_wrapper<float>(jsData.LX));
-//    axisMap.emplace(1, std::reference_wrapper<float>(jsData.LY));
-//    axisMap.emplace(2, std::reference_wrapper<float>(jsData.RX));
-//    axisMap.emplace(3, std::reference_wrapper<float>(jsData.RY));
-//    axisMap.emplace(4, std::reference_wrapper<float>(jsData.RT));
-//    axisMap.emplace(5, std::reference_wrapper<float>(jsData.LT));
-//    axisMap.emplace(6, std::reference_wrapper<float>(tmpXX));
-//    axisMap.emplace(7, std::reference_wrapper<float>(tmpYY));
 }
 
 bool ReadJoystick::init(const std::string &device_path, bool blocking)
@@ -195,7 +189,7 @@ void ReadJoystick::updateJsData()
                     jsData.LT = (float) event.value / (2 * AXIS_VAL_MAX_ABS) + 0.5;
                     break;
                 case 6:
-                    if (abs(event.value) < 0.001)
+                    if (abs(event.value) < 3000)
                     {
                         jsData.button.components.left = 0;
                         jsData.button.components.right = 0;
@@ -206,7 +200,7 @@ void ReadJoystick::updateJsData()
                         jsData.button.components.right = 1;
                     break;
                 case 7:
-                    if (abs(event.value) < 0.001)
+                    if (abs(event.value) < 3000)
                     {
                         jsData.button.components.up = 0;
                         jsData.button.components.down = 0;
@@ -225,6 +219,7 @@ void ReadJoystick::updateJsData()
     }
 }
 
+#ifdef LCM_PUBLISH
 void ReadJoystick::lcmPublish()
 {
     lcm_js_data.RB = jsData.button.components.RB;
@@ -255,5 +250,6 @@ void ReadJoystick::lcmPublish()
 
     _lcm.publish("joystick data", &lcm_js_data);
 }
+#endif
 
 #endif //TESTJOYSTICK_READ_JOYSTICK_HPP
